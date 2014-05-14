@@ -169,6 +169,12 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
   # TODO: this may have to be casted to a string.  rightaws vs aws doc discrepancy.
   create_volume_opts[:iops] = piops if volume_type == 'io1'
 
+  Chef::Log.info("CB snapshot_id...#{snapshot_id}")
+  Chef::Log.info("CB size...#{size}")
+  Chef::Log.info("CB availability_zone...#{availability_zone}")
+  Chef::Log.info("CB create_volume_opts...#{create_volume_opts}")
+
+  Chef::Log.info("calling to create volume...")
   nv = ec2.create_volume(snapshot_id, size, availability_zone, create_volume_opts)
   Chef::Log.info("Created new volume #{nv[:aws_id]}#{snapshot_id ? " based on #{snapshot_id}" : ""}")
   Chef::Log.info("nv...#{nv}")
