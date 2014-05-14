@@ -170,13 +170,22 @@ def create_volume(snapshot_id, size, availability_zone, timeout, volume_type, pi
   create_volume_opts[:iops] = piops if volume_type == 'io1'
 
   nv = ec2.create_volume(snapshot_id, size, availability_zone, create_volume_opts)
-  Chef::Log.debug("Created new volume #{nv[:aws_id]}#{snapshot_id ? " based on #{snapshot_id}" : ""}")
+  Chef::Log.info("Created new volume #{nv[:aws_id]}#{snapshot_id ? " based on #{snapshot_id}" : ""}")
+  Chef::Log.info("nv...#{nv}")
+  Chef::Log.info("nv...#{nv[:aws_id]}")
+
+  Chef::Log.info("block until created...")
 
   # block until created
   begin
     Timeout::timeout(timeout) do
       while true
+        Chef::Log.info("CB finding volume...")
         vol = volume_by_id(nv[:aws_id])
+
+        Chef::Log.info("vol = #{vol}")
+        Chef::Log.info("vol[:aws_status] = #{vol[:aws_status]}")
+
         if vol && vol[:aws_status] != "deleting"
           if ["in-use", "available"].include?(vol[:aws_status])
             Chef::Log.info("Volume #{nv[:aws_id]} is available")
@@ -263,5 +272,3 @@ def detach_volume(volume_id, timeout)
     raise "Timed out waiting for volume detachment after #{timeout} seconds"
   end
 end
-
-
